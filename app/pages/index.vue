@@ -69,15 +69,15 @@ function onPortraitError(e) {
 <style>
 /* Page-specific styles (English comments only) */
 header {
-  padding: 60px 20px;
+  padding: clamp(32px, 6vw, 60px) 20px;
 }
 header h1 {
-  font-size: 2.8em;
+  font-size: clamp(1.8rem, 3.5vw + 1rem, 2.8rem);
   margin-bottom: 10px;
   color: #f6d465;
 }
 header p {
-  font-size: 1.3em;
+  font-size: clamp(1rem, 1.2vw + 0.2rem, 1.3rem);
   max-width: 700px;
   margin: 0 auto;
   line-height: 1.6em;
@@ -88,7 +88,7 @@ header p {
   display: inline-block;
 }
 .portrait img {
-  width: 350px;
+  width: min(90vw, 350px);
   border-radius: 10px;
   border: 3px solid #f6d465;
   box-shadow: 0 0 40px rgba(255, 215, 0, 0.8), 0 0 80px rgba(255, 215, 0, 0.6), 0 0 120px rgba(255, 215, 0, 0.4);
@@ -99,15 +99,15 @@ header p {
   box-shadow: 0 0 60px rgba(255, 215, 0, 1), 0 0 100px rgba(255, 215, 0, 0.9), 0 0 150px rgba(255, 215, 0, 0.8);
 }
 .section {
-  padding: 50px 20px;
+  padding: clamp(32px, 6vw, 50px) 20px;
   max-width: 900px;
   margin: auto;
 }
 .don-button {
   background-color: #f6d465;
   color: #0d1b4b;
-  padding: 18px 40px;
-  font-size: 1.2em;
+  padding: clamp(12px, 2.8vw, 18px) clamp(20px, 5.2vw, 40px);
+  font-size: clamp(1rem, 1.2vw, 1.2em);
   border: none;
   border-radius: 50px;
   cursor: pointer;
@@ -142,8 +142,22 @@ footer {
 }
 .list {
   text-align: left;
-  max-width: 600px;
-  margin: auto;
+  max-width: min(90vw, 600px);
+  margin: 0 auto;
   line-height: 1.8em;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  header { padding: 40px 16px; }
+  .section { padding: 28px 16px; }
+}
+
+@media (max-width: 480px) {
+  .don-button {
+    width: 100%;
+    display: inline-block;
+    text-align: center;
+  }
 }
 </style>
