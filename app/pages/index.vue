@@ -1,9 +1,5 @@
 <template>
   <div>
-    <div class="banner">
-      <img src="/banner.svg" alt="Ange Ebogo Emerent" />
-    </div>
-
     <header>
       <h1>Hommage à Ange Ebogo Emerent</h1>
       <p>
@@ -11,8 +7,8 @@
       </p>
       <div class="portrait">
         <img :src="portraitSrc" alt="Ange Ebogo Emerent" @error="onPortraitError" />
+        <button class="don-button below" type="button" @click="openModal">💛 Faire un don maintenant</button>
       </div>
-      <button class="don-button" type="button" @click="openModal">💛 Faire un don maintenant</button>
     </header>
 
     <section class="section">
@@ -113,7 +109,7 @@ useHead({
 })
 
 // Runtime image path with graceful fallback (English comments only)
-const portraitSrc = ref('/images/ange-ebogo.jpg')
+const portraitSrc = ref('/ebogo.png')
 function onPortraitError(e) {
   // Fallback to banner if real portrait is not yet present
   e.target.src = '/banner.svg'
@@ -184,7 +180,9 @@ header p {
 .portrait {
   margin-top: 40px;
   position: relative;
-  display: inline-block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .portrait img {
   width: min(90vw, 350px);
@@ -196,6 +194,10 @@ header p {
 .portrait img:hover {
   transform: scale(1.05);
   box-shadow: 0 0 60px rgba(255, 215, 0, 1), 0 0 100px rgba(255, 215, 0, 0.9), 0 0 150px rgba(255, 215, 0, 0.8);
+}
+.portrait .don-button.below {
+  margin-top: 12px;
+  width: min(90vw, 350px);
 }
 .section {
   padding: clamp(32px, 6vw, 50px) 20px;
