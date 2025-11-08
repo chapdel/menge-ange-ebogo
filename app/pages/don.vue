@@ -13,7 +13,7 @@
           Virement bancaire — contactez-nous pour les coordonnées.
         </li>
         <li>
-          Dons en ligne — nous pouvons intégrer un prestataire (Stripe/PayPal/MoMo, etc.).
+          Dons en ligne — nous pouvons intégrer un prestataire.
         </li>
         <li>
           Participation logistique — bénévolat pour la cérémonie.

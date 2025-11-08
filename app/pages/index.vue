@@ -12,7 +12,7 @@
       <div class="portrait">
         <img :src="portraitSrc" alt="Ange Ebogo Emerent" @error="onPortraitError" />
       </div>
-      <NuxtLink class="don-button" to="/don">💛 Faire un don maintenant</NuxtLink>
+      <button class="don-button" type="button" @click="openModal">💛 Faire un don maintenant</button>
     </header>
 
     <section class="section">
@@ -32,7 +32,7 @@
         <li>Préparer la cérémonie d’hommage musical,</li>
         <li>Préserver et transmettre son héritage artistique.</li>
       </ul>
-      <NuxtLink class="don-button" to="/don">🤍 Contribuer à la collecte</NuxtLink>
+      <button class="don-button" type="button" @click="openModal">🤍 Contribuer à la collecte</button>
       <p class="cit">« Un artiste ne meurt jamais : il vit à travers la musique qu’il a semée dans nos cœurs. »</p>
     </section>
 
@@ -46,10 +46,64 @@
     <footer>
       <p>© 2025 Comité d’Hommage à Ange Ebogo Emerent – Tous droits réservés</p>
     </footer>
+    
+    <!-- Donation modal (English comments only) -->
+    <div v-if="showModal" class="modal-overlay" @click="closeModal" aria-hidden="true"></div>
+    <section
+      v-if="showModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="donation-title"
+      tabindex="-1"
+      @keydown.esc="closeModal"
+      @keyup.esc.window="closeModal"
+    >
+      <div class="modal-content" @click.stop>
+        <header class="modal-header">
+          <h2 id="donation-title">Faire un don</h2>
+          <button class="close" type="button" aria-label="Fermer" @click="closeModal">✖</button>
+        </header>
+
+        <p class="modal-help">Indiquez un montant ou choisissez une suggestion ci-dessous.</p>
+        <div class="amount-row">
+          <label for="home-don-amount">Montant (FCFA)</label>
+          <input
+            id="home-don-amount"
+            type="number"
+            inputmode="numeric"
+            min="100"
+            step="100"
+            placeholder="Ex. 5 000"
+            v-model.number="amount"
+            aria-describedby="home-don-amount-desc"
+          />
+        </div>
+        <p id="home-don-amount-desc" class="hint">Montant minimal: 100 FCFA. Vous pouvez ajuster librement.</p>
+
+        <div class="suggestions" role="group" aria-label="Suggestions de montants">
+          <button
+            v-for="s in suggestions"
+            :key="s"
+            type="button"
+            class="chip"
+            :class="{ active: amount === s }"
+            @click="selectAmount(s)"
+          >{{ formatCurrency(s) }}</button>
+        </div>
+
+        <div class="pay-row">
+          <button class="don-button pay" :disabled="!isValidAmount" @click="handlePay">
+            💳 Payer
+          </button>
+          <p class="tiny" v-if="!isValidAmount">Veuillez saisir un montant valide (≥ 100 FCFA).</p>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 // Set page head tags and title (English comments only)
 useHead({
   title: 'Hommage à Ange Ebogo Emerent',
@@ -64,6 +118,51 @@ function onPortraitError(e) {
   // Fallback to banner if real portrait is not yet present
   e.target.src = '/banner.svg'
 }
+
+// Donation modal state and helpers (English comments only)
+const showModal = ref(false)
+const amount = ref<number | null>(null)
+const suggestions = [1000, 5000, 10000, 20000, 50000]
+
+const isValidAmount = computed(() => {
+  return typeof amount.value === 'number' && amount.value >= 100
+})
+
+function openModal() {
+  showModal.value = true
+  // Move focus to the amount input after the modal opens
+  requestAnimationFrame(() => {
+    const el = document.getElementById('home-don-amount') as HTMLInputElement | null
+    el?.focus()
+  })
+}
+function closeModal() {
+  showModal.value = false
+}
+function selectAmount(v: number) {
+  amount.value = v
+}
+function formatCurrency(v: number) {
+  try {
+    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF', maximumFractionDigits: 0 }).format(v)
+  } catch {
+    return `${v.toLocaleString('fr-FR')} FCFA`
+  }
+}
+function handlePay() {
+  if (!isValidAmount.value) return
+  const amt = amount.value as number
+  const subject = encodeURIComponent('Contribution – Ange Ebogo Emerent')
+  const body = encodeURIComponent(`Bonjour,\n\nJe souhaite contribuer au montant de ${formatCurrency(amt)}.\nMerci de me communiquer les instructions de paiement.\n\nCordialement.`)
+  window.location.href = `mailto:contact@example.com?subject=${subject}&body=${body}`
+}
+
+// Prevent background scroll when modal is open (English comments only)
+watch(showModal, (val) => {
+  try {
+    document.body.style.overflow = val ? 'hidden' : ''
+  } catch {}
+})
 </script>
 
 <style>
@@ -146,6 +245,90 @@ footer {
   margin: 0 auto;
   line-height: 1.8em;
 }
+
+/* Modal styles (English comments only) */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  z-index: 999;
+}
+.modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 1000;
+}
+.modal-content {
+  width: min(92vw, 560px);
+  background: #0d1b4b;
+  color: #fff;
+  border: 2px solid #f6d465;
+  border-radius: 16px;
+  padding: clamp(20px, 4vw, 28px);
+  box-shadow: 0 0 30px rgba(246, 212, 101, 0.4);
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.modal-help {
+  opacity: 0.9;
+  margin-bottom: 12px;
+}
+.close {
+  background: transparent;
+  color: #f6d465;
+  border: 1px solid rgba(246, 212, 101, 0.5);
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.amount-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+.amount-row label {
+  font-weight: 600;
+}
+.amount-row input {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 10px;
+  padding: clamp(12px, 2.5vw, 14px) 12px;
+  font-size: clamp(1rem, 1.2vw, 1.05rem);
+}
+.hint {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-top: 6px;
+}
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+.chip {
+  background: rgba(246, 212, 101, 0.15);
+  color: #f6d465;
+  border: 1px solid rgba(246, 212, 101, 0.35);
+  border-radius: 24px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.chip:hover { background: rgba(246, 212, 101, 0.25); }
+.chip.active { background: #f6d465; color: #0d1b4b; }
+.pay-row { margin-top: 18px; }
+.pay-row .tiny { font-size: 0.9rem; opacity: 0.85; margin-top: 8px; }
+.don-button.pay { min-width: 160px; }
 
 /* Responsive tweaks */
 @media (max-width: 768px) {
