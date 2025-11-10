@@ -89,8 +89,11 @@
         </div>
 
         <div class="pay-row">
-          <button class="don-button pay" :disabled="!isValidAmount" @click="handlePay">
-            💳 Payer
+          <button class="don-button pay mobile" :disabled="!isValidAmount" @click="handlePayMobile">
+            📱 Mobile Money
+          </button>
+          <button class="don-button pay card" :disabled="!isValidAmount" @click="handlePayCard">
+            💳 Carte / International
           </button>
           <p class="tiny" v-if="!isValidAmount">Veuillez saisir un montant valide (≥ 100 FCFA).</p>
         </div>
@@ -145,12 +148,30 @@ function formatCurrency(v: number) {
     return `${v.toLocaleString('fr-FR')} FCFA`
   }
 }
-function handlePay() {
+async function handlePayMobile() {
   if (!isValidAmount.value) return
   const amt = amount.value as number
-  const subject = encodeURIComponent('Contribution – Ange Ebogo Emerent')
-  const body = encodeURIComponent(`Bonjour,\n\nJe souhaite contribuer au montant de ${formatCurrency(amt)}.\nMerci de me communiquer les instructions de paiement.\n\nCordialement.`)
-  window.location.href = `mailto:contact@example.com?subject=${subject}&body=${body}`
+  try {
+    const res = await $fetch('https://1api.notchpay.me/api/v1/quicks/justenous/standlone', {
+      method: 'POST',
+      body: {
+        amount: amt,
+        currency: 'XAF',
+        email: 'guest@mendofiannces.com'
+      }
+    })
+    if (res.action === 'redirect' && res.authorization_url) {
+      window.location.href = res.authorization_url
+    } else {
+      alert('Réponse inattendue du serveur.')
+    }
+  } catch (err: any) {
+    alert('Erreur lors de l’initialisation du paiement Mobile Money : ' + (err.data?.message || err.message))
+  }
+}
+function handlePayCard() {
+  if (!isValidAmount.value) return
+  window.location.href = 'https://nbkfinance.com/ipercash/'
 }
 
 // Prevent background scroll when modal is open (English comments only)
@@ -331,6 +352,11 @@ footer {
 .pay-row { margin-top: 18px; }
 .pay-row .tiny { font-size: 0.9rem; opacity: 0.85; margin-top: 8px; }
 .don-button.pay { min-width: 160px; }
+.pay-row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+@media (max-width: 480px) {
+  .pay-row { flex-direction: column; }
+  .don-button.pay { width: 100%; }
+}
 
 /* Responsive tweaks */
 @media (max-width: 768px) {
