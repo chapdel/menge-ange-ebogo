@@ -89,8 +89,10 @@
         </div>
 
         <div class="pay-row">
-          <button class="don-button pay mobile" :disabled="!isValidAmount" @click="handlePayMobile">
-            📱 Mobile Money
+          <button class="don-button pay mobile" :disabled="!isValidAmount || loadingMobile" @click="handlePayMobile">
+            <span v-if="loadingMobile">⏳</span>
+            <span v-else>📱</span>
+            {{ loadingMobile ? 'Création...' : 'Mobile Money' }}
           </button>
           <button class="don-button pay card" :disabled="!isValidAmount" @click="handlePayCard">
             💳 Carte / International
@@ -121,6 +123,7 @@ function onPortraitError(e) {
 // Donation modal state and helpers (English comments only)
 const showModal = ref(false)
 const amount = ref<number | null>(null)
+const loadingMobile = ref(false)
 const suggestions = [1000, 5000, 10000, 20000, 50000]
 
 const isValidAmount = computed(() => {
@@ -150,9 +153,10 @@ function formatCurrency(v: number) {
 }
 async function handlePayMobile() {
   if (!isValidAmount.value) return
+  loadingMobile.value = true
   const amt = amount.value as number
   try {
-    const res = await $fetch('https://1api.notchpay.me/api/v1/quicks/justenous/standlone', {
+    const res = await $fetch('https://api.notchpay.me/api/v1/quicks/justenous/standlone', {
       method: 'POST',
       body: {
         amount: amt,
@@ -167,6 +171,8 @@ async function handlePayMobile() {
     }
   } catch (err: any) {
     alert('Erreur lors de l’initialisation du paiement Mobile Money : ' + (err.data?.message || err.message))
+  } finally {
+    loadingMobile.value = false
   }
 }
 function handlePayCard() {
@@ -357,6 +363,9 @@ footer {
   .pay-row { flex-direction: column; }
   .don-button.pay { width: 100%; }
 }
+/* Loader styles */
+.don-button:disabled { cursor: not-allowed; opacity: 0.75; }
+.don-button.pay.mobile span { display: inline-block; margin-right: 6px; }
 
 /* Responsive tweaks */
 @media (max-width: 768px) {
