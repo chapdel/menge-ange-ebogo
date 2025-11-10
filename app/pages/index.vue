@@ -92,7 +92,7 @@
           <button class="don-button pay mobile" :disabled="!isValidAmount || loadingMobile" @click="handlePayMobile">
             <span v-if="loadingMobile">⏳</span>
             <span v-else>📱</span>
-            {{ loadingMobile ? 'Création...' : 'Mobile Money' }}
+            {{ loadingMobile ? 'Traitement...' : 'Mobile Money' }}
           </button>
           <button class="don-button pay card" :disabled="!isValidAmount" @click="handlePayCard">
             💳 Carte / International
