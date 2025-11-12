@@ -156,7 +156,7 @@ async function handlePayMobile() {
   loadingMobile.value = true
   const amt = amount.value as number
   try {
-    const res = await $fetch('https://api.notchpay.me/api/v1/quicks/justenous/standlone', {
+    const res = await $fetch('https://api.notchpay.me/api/v1/quicks/0eM2SmFl3/standlone', {
       method: 'POST',
       body: {
         amount: amt,
